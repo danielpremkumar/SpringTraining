@@ -24,3 +24,4 @@ hs_err_pid*
 *.idea/*
 */target/*
 restful-web-services.iml
+target/classes/application.properties
