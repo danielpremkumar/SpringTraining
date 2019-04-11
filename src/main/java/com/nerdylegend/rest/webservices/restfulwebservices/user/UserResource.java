@@ -6,6 +6,8 @@ import java.util.List;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.Resource;
+import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,19 +23,24 @@ public class UserResource {
 	@Autowired
 	private UserDaoService service;
 
-	@GetMapping("/users")
+	//@GetMapping(path="/users", produces="application/json; charset=UTF-8")
+	//@GetMapping(path="/users", produces="application/xml")
+	@GetMapping(path="/users")
 	public List<User> retrieveAllUsers() {
 		return service.findAll();
 	}
 
-	@GetMapping("/users/{id}")
-	public User retrieveUser(@PathVariable int id) {
+	@GetMapping(path="/users/{id}", produces="application/json; charset=UTF-8")
+	public Resource<User> retrieveUser(@PathVariable int id) {
 		User user = service.findOne(id);
 		
 		if(user==null)
 			throw new UserNotFoundException("id-"+ id);
-		
-		return user;
+		Resource<User> resource = new Resource<>(user);
+		ControllerLinkBuilder linkTo =
+		ControllerLinkBuilder.linkTo(ControllerLinkBuilder.methodOn(this.getClass()).retrieveAllUsers());
+		resource.add(linkTo.withRel("all-users"));
+		return resource;
 	}
 
 	@DeleteMapping("/users/{id}")
